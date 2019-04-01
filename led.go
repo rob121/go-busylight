@@ -3,7 +3,7 @@ package led
 import (
 	"errors"
 	"fmt"
-	"github.com/boombuler/hid"
+	"github.com/baaazen/go-hid"
 	"image/color"
 )
 

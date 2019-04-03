@@ -13,8 +13,8 @@ var BusyLightUC DeviceType
 // Device type: BusyLight Lync
 var BusyLightLync DeviceType
 
-// Device type: Kuando BusyLight
-var KuandoBusyLight DeviceType
+// Device type: BusyLight UC Omega
+var BusyLightUCOmega DeviceType
 
 func init() {
 	BusyLightUC = addDriver(usbDriver{
@@ -41,7 +41,7 @@ func init() {
 			}), nil
 		},
 	})
-	KuandoBusyLight = addDriver(usbDriver{
+	BusyLightUCOmega = addDriver(usbDriver{
 		/*
 			Protocol:
 			===================================================================
@@ -62,8 +62,8 @@ func init() {
 										=> sum of all bytes
 			===================================================================
 		*/
-		Name:      "Kuando BusyLight",
-		Type:      &KuandoBusyLight,
+		Name:      "BusyLight UC Omega",
+		Type:      &BusyLightUCOmega,
 		VendorId:  0x27BB,
 		ProductId: 0x3BCD,
 		Open: func(d hid.Device) (Device, error) {

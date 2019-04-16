@@ -33,7 +33,7 @@ func (f *ledAnimationFrame) NextFrame() *ledAnimationFrame {
 	return f.nextFrame
 }
 
-func (f *ledAnimationFrame) AppendFrame() *ledAnimationFrame {
+func (f *ledAnimationFrame) NewFrame() *ledAnimationFrame {
 	f.nextFrame = &ledAnimationFrame{prevFrame: f}
 	return f.nextFrame
 }

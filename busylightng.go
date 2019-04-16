@@ -138,7 +138,7 @@ func (d *busylightNGDev) SetKeepActive(v bool) error {
 }
 
 func (d *busylightNGDev) SetColor(c color.Color) error {
-	ani := newLedAnimation()
+	ani := NewLedAnimation()
 	ani.SetColor(c)
 
 	d.dataChan <- ani

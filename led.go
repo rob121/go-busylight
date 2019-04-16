@@ -53,7 +53,7 @@ type DeviceNG interface {
 	SetAnimation(ani *ledAnimationFrame) error
 
 	// Turns off device (TODO: maybe move this to "Device")
-	TurnOff()
+	TurnOff() error
 }
 
 // DeviceInfo keeps information about a physical LED device

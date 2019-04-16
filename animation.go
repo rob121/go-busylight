@@ -14,7 +14,7 @@ type ledAnimationFrame struct {
 	sound *ledSound
 }
 
-func newLedAnimation() *ledAnimationFrame {
+func NewLedAnimation() *ledAnimationFrame {
 	return &ledAnimationFrame{}
 }
 

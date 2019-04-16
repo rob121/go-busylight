@@ -5,7 +5,7 @@ type ledSound struct {
 	volume uint8
 }
 
-func newLedSound() *ledSound {
+func NewLedSound() *ledSound {
 	return &ledSound{}
 }
 

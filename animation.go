@@ -21,9 +21,8 @@ func newLedAnimation() *ledAnimationFrame {
 func (f *ledAnimationFrame) FirstFrame() *ledAnimationFrame {
 	if f.prevFrame == nil {
 		return f
-	} else {
-		return f.prevFrame.FirstFrame()
 	}
+	return f.prevFrame.FirstFrame()
 }
 
 func (f *ledAnimationFrame) PrevFrame() *ledAnimationFrame {
@@ -42,9 +41,8 @@ func (f *ledAnimationFrame) AppendFrame() *ledAnimationFrame {
 func (f *ledAnimationFrame) GetID() uint8 {
 	if f.prevFrame == nil {
 		return 0
-	} else {
-		return f.prevFrame.GetID() + 1
-	}
+	} 
+	return f.prevFrame.GetID() + 1
 }
 
 func (f *ledAnimationFrame) SetNextFrame(nextFrame *ledAnimationFrame) {

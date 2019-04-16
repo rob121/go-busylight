@@ -47,6 +47,15 @@ type Device interface {
 	Close()
 }
 
+// Some "NG" devices have additional features
+type DeviceNG interface {
+	// SetAnimation sets an animation for LED if device supports this feature
+	SetAnimation(ani *ledAnimationFrame) error
+
+	// Turns off device (TODO: maybe move this to "Device")
+	TurnOff()
+}
+
 // DeviceInfo keeps information about a physical LED device
 type DeviceInfo interface {
 	// GetPath returns a system specific path which can be used to find the device

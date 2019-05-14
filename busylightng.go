@@ -41,43 +41,48 @@ func init() {
 		ProductId: 0x3BCD,
 		Open: func(d hid.Device) (Device, error) {
 			return newBusyLightNG(d, func(ani *ledAnimationFrame) {
-				frame := ani.FirstFrame()
-				currentID := uint8(0)
-				
 				steps := []byte{}
-				for {
-					// serialize frame
-					if frame.GetID() == currentID {
-						currentID++
-					} else {
-						// this seems to be a loop -> abort
-						break
+				if ani != nil {
+					frame := ani.FirstFrame()
+					currentID := uint8(0)
+
+					for {
+						// serialize frame
+						if frame.GetID() == currentID {
+							currentID++
+						} else {
+							// this seems to be a loop -> abort
+							break
+						}
+
+						// TODO: validity checks
+
+						nextFrameID := frame.GetID()
+						if frame.nextFrame != nil {
+							nextFrameID = frame.nextFrame.GetID()
+						}
+						nextStepByte := byte(nextFrameID) | 0x10
+
+						r, g, b, _ := frame.color.RGBA()
+
+						soundByte := byte(0x80)
+						if frame.sound != nil {
+							soundByte += frame.sound.soundID * 0x3
+							soundByte += frame.sound.volume
+						}
+
+						steps = append(steps, nextStepByte, frame.repeatInterval, byte(r>>8), byte(g>>8), byte(b>>8), frame.onTiming, frame.offTiming, soundByte)
+
+						// select next frame
+						if frame.nextFrame == nil {
+							break
+						} else {
+							frame = frame.nextFrame
+						}
 					}
-					
-					// TODO: validity checks
-
-					nextFrameID := frame.GetID()
-					if frame.nextFrame != nil {
-						nextFrameID = frame.nextFrame.GetID()
-					}
-					nextStepByte := byte(nextFrameID) | 0x10
-
-					r, g, b, _ := frame.color.RGBA()
-
-					soundByte := byte(0x80)
-					if frame.sound != nil {
-						soundByte += frame.sound.soundID * 0x3
-						soundByte += frame.sound.volume
-					}
-
-					steps = append(steps, nextStepByte, frame.repeatInterval, byte(r >> 8), byte(g >> 8), byte(b >> 8), frame.onTiming, frame.offTiming, soundByte)
-
-					// select next frame
-					if frame.nextFrame == nil {
-						break
-					} else {
-						frame = frame.nextFrame
-					}
+				} else {
+					// just create a keepalive frame
+					steps = append(steps, 143, 0, 0, 0, 0, 0, 0, 0)
 				}
 
 				for len(steps) < 56 {
@@ -105,20 +110,20 @@ func init() {
 
 type busylightNGDev struct {
 	closeChan chan<- struct{}
-	dataChan chan<- *ledAnimationFrame
+	dataChan  chan<- *ledAnimationFrame
 }
 
 func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame)) *busylightNGDev {
 	closeChan := make(chan struct{})
 	dataChan := make(chan *ledAnimationFrame)
-	ticker := time.NewTicker(20 * time.Second) // If nothing is send after 30 seconds the device turns off.
+	ticker := time.NewTicker(9 * time.Second) // If nothing is send after 30 seconds the device turns off.
 	go func() {
-		var curFrames *ledAnimationFrame = &blNGturnOff
+		var curFrames = &blNGturnOff
 		closed := false
 		for !closed {
 			select {
 			case <-ticker.C:
-				updateFn(curFrames)
+				updateFn(nil)
 			case frames := <-dataChan:
 				curFrames = frames
 				updateFn(curFrames)

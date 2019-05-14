@@ -26,7 +26,7 @@ func init() {
 			[1 byte ] 0x00				"on" timing
 			[1 byte ] 0x00				"off" timing
 			[1 byte ] 0x80				sound id and volume
-										=> 0x80 + sound_id * 0x3 + sound_volume
+										=> 0x80 + sound_id * 8 + sound_volume
 			------------ (repeat) ---------------------------------------------
 			=> fill up with 0x00 until len(steps) >= 56
 			------------ footer -----------------------------------------------
@@ -67,7 +67,7 @@ func init() {
 
 						soundByte := byte(0x80)
 						if frame.sound != nil {
-							soundByte += frame.sound.soundID * 0x3
+							soundByte += frame.sound.soundID * 8
 							soundByte += frame.sound.volume
 						}
 

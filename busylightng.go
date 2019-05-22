@@ -2,6 +2,7 @@ package led
 
 import (
 	"image/color"
+	"log"
 	"time"
 
 	"github.com/baaazen/go-hid"
@@ -40,7 +41,7 @@ func init() {
 		VendorId:  0x27BB,
 		ProductId: 0x3BCD,
 		Open: func(d hid.Device) (Device, error) {
-			return newBusyLightNG(d, func(ani *ledAnimationFrame) {
+			return newBusyLightNG(d, func(ani *ledAnimationFrame) error {
 				steps := []byte{}
 				if ani != nil {
 					frame := ani.FirstFrame()
@@ -102,7 +103,9 @@ func init() {
 				buffer = append(buffer, byte(checksum>>8), byte(checksum&0xff))
 
 				// send buffer
-				d.Write(buffer)
+				err := d.Write(buffer)
+
+				return err
 			}), nil
 		},
 	})
@@ -114,7 +117,7 @@ type busylightNGDev struct {
 	closed    *bool
 }
 
-func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame)) *busylightNGDev {
+func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame) error) *busylightNGDev {
 	closeChan := make(chan struct{})
 	dataChan := make(chan *ledAnimationFrame)
 	ticker := time.NewTicker(9 * time.Second) // If nothing is send after 30 seconds the device turns off.
@@ -124,17 +127,27 @@ func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame)) *busyli
 		for !closed {
 			select {
 			case <-ticker.C:
-				updateFn(nil)
+				err := updateFn(nil)
+				if err != nil {
+					log.Printf("Error updating busylight (keepalive): %s\n", err)
+					ticker.Stop()
+					closed = true
+				}
 			case frames := <-dataChan:
 				curFrames = frames
-				updateFn(curFrames)
+				err := updateFn(curFrames)
+				if err != nil {
+					log.Printf("Error updating busylight: %s\n", err)
+					ticker.Stop()
+					closed = true
+				}
 			case <-closeChan:
 				ticker.Stop()
-				updateFn(&blNGturnOff) // turn off device
-				d.Close()
 				closed = true
+				updateFn(&blNGturnOff) // turn off device
 			}
 		}
+		d.Close()
 	}()
 	return &busylightNGDev{closeChan: closeChan, dataChan: dataChan, closed: &closed}
 }

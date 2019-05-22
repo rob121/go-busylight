@@ -43,15 +43,16 @@ func init() {
 type busylightDev struct {
 	closeChan chan<- struct{}
 	colorChan chan<- color.Color
+	closed    *bool
 }
 
 func newBusyLight(d hid.Device, setcolorFn func(c color.Color)) *busylightDev {
 	closeChan := make(chan struct{})
 	colorChan := make(chan color.Color)
 	ticker := time.NewTicker(20 * time.Second) // If nothing is send after 30 seconds the device turns off.
+	closed := false
 	go func() {
 		var curColor color.Color = color.Black
-		closed := false
 		for !closed {
 			select {
 			case <-ticker.C:
@@ -67,7 +68,7 @@ func newBusyLight(d hid.Device, setcolorFn func(c color.Color)) *busylightDev {
 			}
 		}
 	}()
-	return &busylightDev{closeChan: closeChan, colorChan: colorChan}
+	return &busylightDev{closeChan: closeChan, colorChan: colorChan, closed: &closed}
 }
 
 func (d *busylightDev) SetKeepActive(v bool) error {
@@ -78,6 +79,11 @@ func (d *busylightDev) SetColor(c color.Color) error {
 	d.colorChan <- c
 	return nil
 }
+
 func (d *busylightDev) Close() {
 	d.closeChan <- struct{}{}
+}
+
+func (d *busylightDev) IsClosed() bool {
+	return *d.closed
 }

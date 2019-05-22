@@ -111,15 +111,16 @@ func init() {
 type busylightNGDev struct {
 	closeChan chan<- struct{}
 	dataChan  chan<- *ledAnimationFrame
+	closed    *bool
 }
 
 func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame)) *busylightNGDev {
 	closeChan := make(chan struct{})
 	dataChan := make(chan *ledAnimationFrame)
 	ticker := time.NewTicker(9 * time.Second) // If nothing is send after 30 seconds the device turns off.
+	closed := false
 	go func() {
 		var curFrames = &blNGturnOff
-		closed := false
 		for !closed {
 			select {
 			case <-ticker.C:
@@ -135,7 +136,7 @@ func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame)) *busyli
 			}
 		}
 	}()
-	return &busylightNGDev{closeChan: closeChan, dataChan: dataChan}
+	return &busylightNGDev{closeChan: closeChan, dataChan: dataChan, closed: &closed}
 }
 
 func (d *busylightNGDev) SetKeepActive(v bool) error {
@@ -162,4 +163,8 @@ func (d *busylightNGDev) TurnOff() error {
 
 func (d *busylightNGDev) Close() {
 	d.closeChan <- struct{}{}
+}
+
+func (d *busylightNGDev) IsClosed() bool {
+	return *d.closed
 }

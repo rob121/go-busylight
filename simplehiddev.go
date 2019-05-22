@@ -33,7 +33,10 @@ func (s *simpleHidDevice) Close() {
 		s.device.Close()
 		s.device = nil
 	}
+}
 
+func (s *simpleHidDevice) IsClosed() bool {
+	return s.device == nil
 }
 
 // SetColor sets the color of the LED to the closest supported color.

@@ -3,8 +3,9 @@ package led
 import (
 	"errors"
 	"fmt"
-	"github.com/baaazen/go-hid"
 	"image/color"
+
+	"github.com/baaazen/go-hid"
 )
 
 // Device type identifies the device type. the IDs may change on each program start.
@@ -45,6 +46,9 @@ type Device interface {
 
 	// Close the device and release all resources
 	Close()
+
+	// Check if device is closed
+	IsClosed() bool
 }
 
 // Some "NG" devices have additional features

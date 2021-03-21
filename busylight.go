@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/baaazen/go-hid"
+	"github.com/boombuler/hid"
 )
 
 // Device type: BusyLight UC

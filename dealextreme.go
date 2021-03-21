@@ -1,7 +1,7 @@
 package led
 
 import (
-	"github.com/baaazen/go-hid"
+	"github.com/boombuler/hid"
 	"image/color"
 )
 

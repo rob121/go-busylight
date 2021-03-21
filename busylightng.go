@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/baaazen/go-hid"
+	"github.com/boombuler/hid"
 )
 
 // Device type: BusyLight UC Omega

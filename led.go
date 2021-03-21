@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/baaazen/go-hid"
+	"github.com/boombuler/hid"
 )
 
 // Device type identifies the device type. the IDs may change on each program start.

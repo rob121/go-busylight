@@ -111,13 +111,13 @@ func init() {
 	})
 }
 
-type busylightNGDev struct {
+type BusylightNGDev struct {
 	closeChan chan<- struct{}
 	dataChan  chan<- *ledAnimationFrame
 	closed    *bool
 }
 
-func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame) error) *busylightNGDev {
+func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame) error) *BusylightNGDev {
 	closeChan := make(chan struct{})
 	dataChan := make(chan *ledAnimationFrame)
 	ticker := time.NewTicker(9 * time.Second) // If nothing is send after 30 seconds the device turns off.
@@ -149,14 +149,14 @@ func newBusyLightNG(d hid.Device, updateFn func(ani *ledAnimationFrame) error) *
 		}
 		d.Close()
 	}()
-	return &busylightNGDev{closeChan: closeChan, dataChan: dataChan, closed: &closed}
+	return &BusylightNGDev{closeChan: closeChan, dataChan: dataChan, closed: &closed}
 }
 
-func (d *busylightNGDev) SetKeepActive(v bool) error {
+func (d *BusylightNGDev) SetKeepActive(v bool) error {
 	return ErrKeepActiveNotSupported
 }
 
-func (d *busylightNGDev) SetColor(c color.Color) error {
+func (d *BusylightNGDev) SetColor(c color.Color) error {
 	ani := NewLedAnimation()
 	ani.SetColor(c)
 
@@ -164,20 +164,20 @@ func (d *busylightNGDev) SetColor(c color.Color) error {
 	return nil
 }
 
-func (d *busylightNGDev) SetAnimation(ani *ledAnimationFrame) error {
+func (d *BusylightNGDev) SetAnimation(ani *ledAnimationFrame) error {
 	d.dataChan <- ani
 	return nil
 }
 
-func (d *busylightNGDev) TurnOff() error {
+func (d *BusylightNGDev) TurnOff() error {
 	d.dataChan <- &blNGturnOff
 	return nil
 }
 
-func (d *busylightNGDev) Close() {
+func (d *BusylightNGDev) Close() {
 	d.closeChan <- struct{}{}
 }
 
-func (d *busylightNGDev) IsClosed() bool {
+func (d *BusylightNGDev) IsClosed() bool {
 	return *d.closed
 }
